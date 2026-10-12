@@ -13,24 +13,35 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
-        // Menggunakan updateOrCreate agar aman dari duplikat
+        // 1. Akun Admin (Pengelola Sistem Kantin)
         User::updateOrCreate(
-            ['email' => 'admin@gmail.com'], // Kunci pencarian unik
+            ['email' => 'admin@gmail.com'],
             [
-                'name' => 'Ibu Budi',
+                'name' => 'Ibu Budi (Admin)',
                 'password' => Hash::make('password123'),
                 'role' => 'admin',
                 'email_verified_at' => now(),
             ]
         );
 
-        // Jika ingin menambah data penjual atau pembeli dummy lainnya:
+        // 2. Akun Penjual / Tenant (Pemilik Stand Kantin)
         User::updateOrCreate(
             ['email' => 'penjual@gmail.com'],
             [
-                'name' => 'Pak Jono',
+                'name' => 'Pak Jono (Penjual)',
                 'password' => Hash::make('password123'),
                 'role' => 'penjual',
+                'email_verified_at' => now(),
+            ]
+        );
+
+        // 3. Akun Pembeli / Siswa (Konsumen Kantin)
+        User::updateOrCreate(
+            ['email' => 'pembeli@gmail.com'],
+            [
+                'name' => 'Andi (Siswa)',
+                'password' => Hash::make('password123'),
+                'role' => 'pembeli',
                 'email_verified_at' => now(),
             ]
         );
