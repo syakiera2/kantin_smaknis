@@ -6,6 +6,9 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 
 // Import Controller dengan Alias agar tidak bentrok namanya
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
+use App\Http\Controllers\Admin\TopUpController as AdminTopUpController;
+
+
 use App\Http\Controllers\Penjual\DashboardController as PenjualDashboardController;
 use App\Http\Controllers\Pembeli\DashboardController as PembeliDashboardController;
 
@@ -24,6 +27,12 @@ Route::get('/', function () {
 // ==========================================
 Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard'); // Menghasilkan nama 'admin.dashboard'
+
+    // Perbaikan di bagian ini:
+    Route::get('/topups', [AdminTopUpController::class, 'index'])->name('topups.index'); // Menjadi 'admin.topups.index'
+    Route::get('topups/create', [AdminTopUpController::class, 'create'])->name('topups.create');
+    Route::post('topups', [AdminTopUpController::class, 'store'])->name('topups.store');
+    Route::get('topups/{topUp}', [AdminTopUpController::class, 'show'])->name('topups.show');
 });
     
     // Tambahan rute admin lainnya di sini jika ada...

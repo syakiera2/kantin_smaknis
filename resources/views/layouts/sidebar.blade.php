@@ -38,7 +38,7 @@
             <!-- 2. Manajemen Keuangan & Pembayaran Digital -->
             <div class="pt-2">
                 <p class="px-4 text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-1">2. Keuangan & Cashless</p>
-                <a href="#" class="flex items-center space-x-3 px-4 py-2 rounded-xl text-xs font-medium text-gray-600 hover:bg-[#EFEBE9]">
+                <a href="{{ route('admin.topups.index')}}" class="flex items-center space-x-3 px-4 py-2 rounded-xl text-xs font-medium text-gray-600 hover:bg-[#EFEBE9]">
                     <svg class="w-4 h-4 text-orange-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
                     <span>Top Up Saldo</span>
                 </a>
