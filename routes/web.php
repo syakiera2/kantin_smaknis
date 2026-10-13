@@ -3,10 +3,12 @@
 use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\CategoryController;
 
 // Import Controller dengan Alias agar tidak bentrok namanya
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\StockController; // <-- TAMBAHKAN INI
+use App\Http\Controllers\Admin\TopUpController as AdminTopUpController;
 use App\Http\Controllers\Penjual\DashboardController as PenjualDashboardController;
 use App\Http\Controllers\Pembeli\DashboardController as PembeliDashboardController;
 
@@ -31,6 +33,7 @@ Route::get('/menu/availability', [StockController::class, 'availability'])
 // 1. ROUTE KHUSUS ADMIN
 // ==========================================
 Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
+
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
 
     // ---- Kontrol Stok ---- (TAMBAHKAN BLOK INI)
@@ -40,9 +43,17 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::get('/stock/history', [StockController::class, 'history'])->name('stock.history');
     Route::put('/stock/{menu}', [StockController::class, 'update'])->name('stock.update');
 
-    // Tambahan rute admin lainnya di sini jika ada...
-}); // <-- tanda penutup grup dipindah ke sini
+    Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard'); // Menghasilkan nama 'admin.dashboard'
 
+    Route::resource('categories', CategoryController::class);
+
+    // Perbaikan di bagian ini:
+    Route::get('/topups', [AdminTopUpController::class, 'index'])->name('topups.index'); // Menjadi 'admin.topups.index'
+    Route::get('topups/create', [AdminTopUpController::class, 'create'])->name('topups.create');
+    Route::post('topups', [AdminTopUpController::class, 'store'])->name('topups.store');
+    Route::get('topups/{topUp}', [AdminTopUpController::class, 'show'])->name('topups.show');
+});
+    
 
 // ==========================================
 // 2. ROUTE KHUSUS PENJUAL
