@@ -3,11 +3,14 @@
 use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\CategoryController;
 
 // Import Controller dengan Alias agar tidak bentrok namanya
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\MenuController as AdminMenuController;
 
+use App\Http\Controllers\Admin\StockController; // <-- TAMBAHKAN INI
+use App\Http\Controllers\Admin\TopUpController as AdminTopUpController;
 use App\Http\Controllers\Penjual\DashboardController as PenjualDashboardController;
 use App\Http\Controllers\Pembeli\DashboardController as PembeliDashboardController;
 
@@ -22,25 +25,47 @@ Route::get('/', function () {
 });
 
 // ==========================================
+// 0. ROUTE PUBLIK (status ketersediaan menu)
+// ==========================================
+// <-- TAMBAHKAN INI (di luar middleware auth, dipolling halaman pembeli)
+Route::get('/menu/availability', [StockController::class, 'availability'])
+    ->name('menu.availability');
+
+// ==========================================
 // 1. ROUTE KHUSUS ADMIN
 // ==========================================
 Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
-    Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard'); // Menghasilkan nama 'admin.dashboard'
+
+    Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
+
+    // ---- Kontrol Stok ---- (TAMBAHKAN BLOK INI)
+    Route::get('/stock', [StockController::class, 'index'])->name('stock.index');
+    Route::get('/stock/daily', [StockController::class, 'daily'])->name('stock.daily');
+    Route::post('/stock/daily', [StockController::class, 'dailyStore'])->name('stock.daily.store');
+    Route::get('/stock/history', [StockController::class, 'history'])->name('stock.history');
+    Route::put('/stock/{menu}', [StockController::class, 'update'])->name('stock.update');
 
     Route::resource('menus', AdminMenuController::class)->except('show');
     Route::patch('menus/{menu}/toggle', [AdminMenuController::class, 'toggle'])->name('menus.toggle');
+
+    Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard'); // Menghasilkan nama 'admin.dashboard'
+
+    Route::resource('categories', CategoryController::class);
+
+    // Perbaikan di bagian ini:
+    Route::get('/topups', [AdminTopUpController::class, 'index'])->name('topups.index'); // Menjadi 'admin.topups.index'
+    Route::get('topups/create', [AdminTopUpController::class, 'create'])->name('topups.create');
+    Route::post('topups', [AdminTopUpController::class, 'store'])->name('topups.store');
+    Route::get('topups/{topUp}', [AdminTopUpController::class, 'show'])->name('topups.show');
 });
     
-    // Tambahan rute admin lainnya di sini jika ada...
-    // Contoh: Route::get('/users', [AdminDashboardController::class, 'users'])->name('users');
-
 
 // ==========================================
 // 2. ROUTE KHUSUS PENJUAL
 // ==========================================
 Route::middleware(['auth'])->prefix('penjual')->name('penjual.')->group(function () {
     Route::get('/dashboard', [PenjualDashboardController::class, 'index'])->name('dashboard');
-    
+
     // Tambahan rute penjual lainnya di sini...
 });
 
@@ -50,7 +75,7 @@ Route::middleware(['auth'])->prefix('penjual')->name('penjual.')->group(function
 // ==========================================
 Route::middleware(['auth'])->prefix('pembeli')->name('pembeli.')->group(function () {
     Route::get('/dashboard', [PembeliDashboardController::class, 'index'])->name('dashboard');
-    
+
     // Tambahan rute pembeli lainnya di sini...
 });
 
