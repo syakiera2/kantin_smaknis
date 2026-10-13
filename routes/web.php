@@ -6,6 +6,8 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 
 // Import Controller dengan Alias agar tidak bentrok namanya
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
+use App\Http\Controllers\Admin\MenuController as AdminMenuController;
+
 use App\Http\Controllers\Penjual\DashboardController as PenjualDashboardController;
 use App\Http\Controllers\Pembeli\DashboardController as PembeliDashboardController;
 
@@ -24,6 +26,9 @@ Route::get('/', function () {
 // ==========================================
 Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard'); // Menghasilkan nama 'admin.dashboard'
+
+    Route::resource('menus', AdminMenuController::class)->except('show');
+    Route::patch('menus/{menu}/toggle', [AdminMenuController::class, 'toggle'])->name('menus.toggle');
 });
     
     // Tambahan rute admin lainnya di sini jika ada...
