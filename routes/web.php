@@ -7,14 +7,11 @@ use App\Http\Controllers\CategoryController;
 
 // Import Controller dengan Alias agar tidak bentrok namanya
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
-<<<<<<< HEAD
 use App\Http\Controllers\Admin\TransactionMonitorController as AdminTransactionMonitorController;
-=======
 use App\Http\Controllers\Admin\MenuController as AdminMenuController;
 
 use App\Http\Controllers\Admin\StockController; // <-- TAMBAHKAN INI
 use App\Http\Controllers\Admin\TopUpController as AdminTopUpController;
->>>>>>> 56e89d8718a02a104a0bffefd2cef6b5c4b062d2
 use App\Http\Controllers\Penjual\DashboardController as PenjualDashboardController;
 use App\Http\Controllers\Pembeli\DashboardController as PembeliDashboardController;
 
@@ -53,10 +50,8 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::patch('menus/{menu}/toggle', [AdminMenuController::class, 'toggle'])->name('menus.toggle');
 
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard'); // Menghasilkan nama 'admin.dashboard'
-<<<<<<< HEAD
     Route::get('/monitor', [AdminTransactionMonitorController::class, 'index'])->name('monitor.index');
     Route::get('/monitor/data', [AdminTransactionMonitorController::class, 'data'])->name('monitor.data');
-=======
 
     Route::resource('categories', CategoryController::class);
 
@@ -65,7 +60,6 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::get('topups/create', [AdminTopUpController::class, 'create'])->name('topups.create');
     Route::post('topups', [AdminTopUpController::class, 'store'])->name('topups.store');
     Route::get('topups/{topUp}', [AdminTopUpController::class, 'show'])->name('topups.show');
->>>>>>> 56e89d8718a02a104a0bffefd2cef6b5c4b062d2
 });
     
 

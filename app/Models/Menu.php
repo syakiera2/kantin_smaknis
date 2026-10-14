@@ -2,15 +2,6 @@
 
 namespace App\Models;
 
-<<<<<<< HEAD
-use Illuminate\Database\Eloquent\Model;
-
-class Menu extends Model
-{
-    protected $fillable = ['name', 'category', 'price', 'stock', 'is_available'];
-
-    protected $casts = ['is_available' => 'boolean'];
-=======
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -29,13 +20,21 @@ class Menu extends Model
     ];
 
     protected $fillable = [
-        'user_id', 'nama', 'kategori', 'deskripsi',
-        'harga', 'stok', 'gambar', 'is_tersedia',
+        'user_id', 
+        'nama', 
+        'kategori', 
+        'deskripsi',
+        'harga', 
+        'stok', 
+        'min_stock', 
+        'gambar', 
+        'is_tersedia',
     ];
 
     protected $casts = [
         'harga'       => 'integer',
         'stok'        => 'integer',
+        'min_stock'   => 'integer',
         'is_tersedia' => 'boolean',
     ];
 
@@ -62,6 +61,16 @@ class Menu extends Model
         return $query->where('is_tersedia', true)->where('stok', '>', 0);
     }
 
+    public function scopeLowStock(Builder $query): Builder
+    {
+        return $query->where('stok', '<=', 5);
+    }
+
+    public function scopeEmpty(Builder $query): Builder
+    {
+        return $query->where('stok', 0);
+    }
+
     // ---------- Accessors ----------
     public function getHargaRupiahAttribute(): string
     {
@@ -82,18 +91,4 @@ class Menu extends Model
 
         return $this->stok > 0 ? 'Tersedia' : 'Habis';
     }
-<<<<<<< HEAD
->>>>>>> 56e89d8718a02a104a0bffefd2cef6b5c4b062d2
-=======
-
-    public function scopeLowStock($query)
-    {
-        return $query->where('stock', '<=', 5); // Ubah angka 5 sesuai batas minimum stok Anda
-    }
-
-    public function scopeEmpty($query)
-{
-    return $query->where('stock', 0);
-}
->>>>>>> 9ceb1e672a806189d668506639cecad4ed3f79e9
 }

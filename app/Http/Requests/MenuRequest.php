@@ -22,8 +22,8 @@ class MenuRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'nama'        => ['required', 'string', 'max:100'],
-            'kategori'    => ['required', Rule::in(array_keys(Menu::KATEGORI))],
+            'nama' => ['required', 'string', 'max:100'],
+            'kategori' => ['required', 'in:makanan,minuman,snack'],
             'deskripsi'   => ['nullable', 'string', 'max:500'],
             'harga'       => ['required', 'integer', 'min:0'],
             'stok'        => ['required', 'integer', 'min:0'],

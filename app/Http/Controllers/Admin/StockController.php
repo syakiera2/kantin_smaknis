@@ -15,10 +15,10 @@ class StockController extends Controller
     public function index(Request $request)
     {
         $menus = Menu::query()
-            ->when($request->search, fn ($q, $s) => $q->where('name', 'like', "%{$s}%"))
+            ->when($request->search, fn ($q, $s) => $q->where('nama', 'like', "%{$s}%"))
             ->when($request->status === 'low', fn ($q) => $q->lowStock())
             ->when($request->status === 'empty', fn ($q) => $q->empty())
-            ->orderBy('name')
+            ->orderBy('nama')
             ->paginate(10)
             ->withQueryString();
 
