@@ -28,16 +28,13 @@ Route::get('/', function () {
 // ==========================================
 Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard'); // Menghasilkan nama 'admin.dashboard'
-<<<<<<< HEAD
 
-    // Perbaikan di bagian ini:
+     // Perbaikan di bagian ini:
     Route::get('/topups', [AdminTopUpController::class, 'index'])->name('topups.index'); // Menjadi 'admin.topups.index'
     Route::get('topups/create', [AdminTopUpController::class, 'create'])->name('topups.create');
     Route::post('topups', [AdminTopUpController::class, 'store'])->name('topups.store');
     Route::get('topups/{topUp}', [AdminTopUpController::class, 'show'])->name('topups.show');
-=======
     Route::resource('categories', CategoryController::class);
->>>>>>> 4b868556c24d21655215f609f045e874a7b42ca9
 });
     
     // Tambahan rute admin lainnya di sini jika ada...
