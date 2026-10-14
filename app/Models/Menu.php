@@ -73,4 +73,14 @@ class Menu extends Model
 
         return $this->stok > 0 ? 'Tersedia' : 'Habis';
     }
+
+    public function scopeLowStock($query)
+    {
+        return $query->where('stock', '<=', 5); // Ubah angka 5 sesuai batas minimum stok Anda
+    }
+
+    public function scopeEmpty($query)
+{
+    return $query->where('stock', 0);
+}
 }
