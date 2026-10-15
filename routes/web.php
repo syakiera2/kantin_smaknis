@@ -6,6 +6,8 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\CategoryController;
 
 // Import Controller dengan Alias agar tidak bentrok namanya
+
+//route admin
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\MenuController as AdminMenuController;
 
@@ -14,6 +16,9 @@ use App\Http\Controllers\Admin\TransactionMonitorController as AdminTransactionM
 use App\Http\Controllers\Admin\StockController; // <-- TAMBAHKAN INI
 use App\Http\Controllers\Admin\TopUpController as AdminTopUpController;
 use App\Http\Controllers\Penjual\DashboardController as PenjualDashboardController;
+use App\Http\Controllers\Admin\AkunController as AdminAkunController;
+
+//route pembeli
 use App\Http\Controllers\Pembeli\DashboardController as PembeliDashboardController;
 
 /*
@@ -62,6 +67,11 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::get('topups/create', [AdminTopUpController::class, 'create'])->name('topups.create');
     Route::post('topups', [AdminTopUpController::class, 'store'])->name('topups.store');
     Route::get('topups/{topUp}', [AdminTopUpController::class, 'show'])->name('topups.show');
+
+    Route::get('/akun', [AdminAkunController::class, 'index'])->name('akun.index');
+    Route::get('/akun/create', [AdminAkunController::class, 'create'])->name('akun.create');
+    Route::post('/akun', [AdminAkunController::class, 'store'])->name('akun.store');
+    Route::delete('/akun/{id}', [AdminAkunController::class, 'destroy'])->name('akun.destroy');
 });
     
 
