@@ -33,75 +33,98 @@ class AkunController extends Controller
     }
 
     public function store(Request $request)
-    {
-        $role = $request->input('role');
+{
+    $role = $request->input('role');
 
-        DB::beginTransaction();
-        try {
-            // Upload Foto Profil
-            $fotoPath = null;
-            if ($request->hasFile('foto_profil')) {
-                $fotoPath = $request->file('foto_profil')->store('profil', 'public');
-            }
+    // 1. Validasi Input Umum
+    $rules = [
+        'nama_lengkap' => 'required|string|max:255',
+        'email' => 'required|email|unique:users,email',
+        'password' => 'nullable|min:6',
+        'foto_profil' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+        'saldo_awal' => 'nullable|numeric|min:0',
+    ];
 
-            // 1. Simpan Data User Utama
-            $user = User::create([
-                'name' => $request->nama_lengkap,
-                'email' => $request->email,
-                'password' => Hash::make($request->password ?? 'Password123!'),
-                'role' => $role,
-                'saldo' => $request->saldo_awal ?? 0,
-                'foto_profil' => $fotoPath,
-            ]);
-
-            // 2. Simpan Data Spesifik Berdasarkan Role
-            if ($role === 'siswa') {
-                $request->validate([
-                    'nisn' => 'required|unique:siswa,nisn',
-                    'nis' => 'required|unique:siswa,nis',
-                ]);
-
-                Siswa::create([
-                    'user_id' => $user->id,
-                    'kode_siswa' => 'SIS-' . date('Y') . '-' . sprintf('%03d', $user->id),
-                    'nisn' => $request->nisn,
-                    'nis' => $request->nis,
-                    'kelas' => $request->kelas,
-                    'jurusan' => $request->jurusan,
-                    'jenis_kelamin' => $request->jenis_kelamin,
-                ]);
-            } elseif ($role === 'guru') {
-                $request->validate(['nip_nik' => 'required|unique:guru,nip_nik']);
-
-                Guru::create([
-                    'user_id' => $user->id,
-                    'kode_pegawai' => 'PEG-' . date('Y') . '-' . sprintf('%03d', $user->id),
-                    'nip_nik' => $request->nip_nik,
-                    'jabatan' => $request->jabatan,
-                    'nomor_telepon' => $request->nomor_telepon,
-                    'jenis_kelamin' => $request->jenis_kelamin,
-                ]);
-            } elseif ($role === 'penjual') {
-                Penjual::create([
-                    'user_id' => $user->id,
-                    'kode_penjual' => 'TEN-' . sprintf('%03d', $user->id),
-                    'nama_stand' => $request->nama_stand,
-                    'nomor_stand' => $request->nomor_stand,
-                    'kategori_penjualan' => $request->kategori_penjualan,
-                    'nomor_telepon' => $request->nomor_telepon,
-                    'nama_bank' => $request->nama_bank,
-                    'nomor_rekening' => $request->nomor_rekening,
-                ]);
-            }
-
-            DB::commit();
-            return redirect()->route('admin.akun.index', ['role' => $role])
-                ->with('success', 'Akun ' . ucfirst($role) . ' berhasil dibuat!');
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return back()->withInput()->with('error', 'Gagal membuat akun: ' . $e->getMessage());
-        }
+    // 2. Validasi Khusus Berdasarkan Role
+    if ($role === 'siswa') {
+        $rules['nisn'] = 'required|numeric|unique:siswa,nisn';
+        $rules['nis'] = 'required|numeric|unique:siswa,nis';
+        $rules['kelas'] = 'required|string';
+        $rules['jurusan'] = 'required|string';
+        $rules['jenis_kelamin'] = 'required|in:Laki-laki,Perempuan';
+    } elseif ($role === 'guru') {
+        $rules['nip_nik'] = 'required|string|unique:guru,nip_nik';
+        $rules['jabatan'] = 'required|string';
+        $rules['nomor_telepon'] = 'required|string';
+        $rules['jenis_kelamin'] = 'required|in:Laki-laki,Perempuan';
+    } elseif ($role === 'penjual') {
+        $rules['nama_stand'] = 'required|string';
+        $rules['nomor_stand'] = 'required|string';
+        $rules['kategori_penjualan'] = 'required|string';
+        $rules['nomor_telepon'] = 'required|string';
     }
+
+    $request->validate($rules);
+
+    DB::beginTransaction();
+    try {
+        // Upload Foto Profil
+        $fotoPath = null;
+        if ($request->hasFile('foto_profil')) {
+            $fotoPath = $request->file('foto_profil')->store('profil', 'public');
+        }
+
+        // Simpan Data User Utama
+        $user = User::create([
+            'name' => $request->nama_lengkap,
+            'email' => $request->email,
+            'password' => Hash::make($request->password ?: 'Siswa123!'),
+            'role' => $role,
+            'saldo' => $request->saldo_awal ?? 0,
+            'foto_profil' => $fotoPath,
+        ]);
+
+        // Simpan Data Detail
+        if ($role === 'siswa') {
+            Siswa::create([
+                'user_id' => $user->id,
+                'kode_siswa' => 'SIS-' . date('Y') . '-' . sprintf('%03d', $user->id),
+                'nisn' => $request->nisn,
+                'nis' => $request->nis,
+                'kelas' => $request->kelas,
+                'jurusan' => $request->jurusan,
+                'jenis_kelamin' => $request->jenis_kelamin,
+            ]);
+        } elseif ($role === 'guru') {
+            Guru::create([
+                'user_id' => $user->id,
+                'kode_pegawai' => 'PEG-' . date('Y') . '-' . sprintf('%03d', $user->id),
+                'nip_nik' => $request->nip_nik,
+                'jabatan' => $request->jabatan,
+                'nomor_telepon' => $request->nomor_telepon,
+                'jenis_kelamin' => $request->jenis_kelamin,
+            ]);
+        } elseif ($role === 'penjual') {
+            Penjual::create([
+                'user_id' => $user->id,
+                'kode_penjual' => 'TEN-' . sprintf('%03d', $user->id),
+                'nama_stand' => $request->nama_stand,
+                'nomor_stand' => $request->nomor_stand,
+                'kategori_penjualan' => $request->kategori_penjualan,
+                'nomor_telepon' => $request->nomor_telepon,
+                'nama_bank' => $request->nama_bank,
+                'nomor_rekening' => $request->nomor_rekening,
+            ]);
+        }
+
+        DB::commit();
+        return redirect()->route('admin.akun.index', ['role' => $role])
+            ->with('success', 'Akun ' . ucfirst($role) . ' berhasil dibuat!');
+    } catch (\Exception $e) {
+        DB::rollBack();
+        return back()->withInput()->with('error', 'Gagal menyimpan: ' . $e->getMessage());
+    }
+}
 
     public function destroy($id)
     {

@@ -4,6 +4,12 @@
 <div class="mt-6 max-w-4xl mx-auto bg-white p-8 rounded-xl shadow-sm border border-gray-200">
     <h2 class="text-xl font-bold text-gray-800 mb-6">Tambah Akun {{ ucfirst($role) }} Baru</h2>
 
+
+    @if(session('error'))
+    <div class="p-4 mb-4 text-sm text-red-800 bg-red-100 rounded-lg">
+        {{ session('error') }}
+    </div>
+@endif
     <form action="{{ route('admin.akun.store') }}" method="POST" enctype="multipart/form-data" class="space-y-4">
         @csrf
         <input type="hidden" name="role" value="{{ $role }}">
@@ -132,5 +138,14 @@
             <button type="submit" class="px-4 py-2 bg-[#7F5539] text-white rounded-md hover:bg-[#9C6644]">Simpan Akun</button>
         </div>
     </form>
+    @if ($errors->any())
+    <div class="p-4 mb-4 text-sm text-red-800 bg-red-100 rounded-lg">
+        <ul class="list-disc pl-5">
+            @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+@endif
 </div>
 @endsection
