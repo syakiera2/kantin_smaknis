@@ -16,6 +16,8 @@ class DatabaseSeeder extends Seeder
         // Panggil seeder admin di sini
         $this->call([
             UserSeeder::class,
+            MenuSeeder::class,
+            TransactionSeeder::class,
         ]);
     }
 }
