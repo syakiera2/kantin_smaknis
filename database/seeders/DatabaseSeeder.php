@@ -18,6 +18,10 @@ class DatabaseSeeder extends Seeder
             UserSeeder::class,
             MenuSeeder::class,
             TransactionSeeder::class,
+            SiswaSeeder::class,
+            GuruSeeder::class,
+            PenjualSeeder::class,
+            Categoryseeder::class,
         ]);
     }
 }

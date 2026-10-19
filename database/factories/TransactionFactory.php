@@ -12,7 +12,8 @@ class TransactionFactory extends Factory
     public function definition(): array
     {
         return [
-            'invoice_code'   => 'INV-' . now()->format('Ymd') . '-' . fake()->unique()->numerify('###'),
+            // Gunakan kombinasi timestamp/microtime atau random string yang lebih panjang agar tidak duplikat
+            'invoice_code'   => 'INV-' . now()->format('Ymd') . '-' . strtoupper(fake()->bothify('###???')),
             'buyer_name'     => fake()->name(),
             'total'          => 0,
             'payment_method' => fake()->randomElement(['cash', 'digital']),
