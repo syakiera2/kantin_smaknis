@@ -10,7 +10,7 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        $menus = Menu::orderBy('name')->get();
+        $menus = Menu::orderBy('nama')->get();
 
         return view('pages.pembeli.dashboard', compact('menus'));
     }
