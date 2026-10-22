@@ -10,22 +10,19 @@ return new class extends Migration
     {
         Schema::create('menus', function (Blueprint $table) {
             $table->id();
-            // Relasi ke user/penjual (opsional)
             $table->foreignId('user_id')->nullable()->constrained()->nullOnDelete();
-            
-            // Kolom data menu (diselaraskan dengan Model)
+            $table->foreignId('category_id')->nullable()->constrained()->nullOnDelete();
+
             $table->string('nama');
-            $table->enum('kategori', ['makanan', 'minuman', 'snack'])->default('makanan');
             $table->text('deskripsi')->nullable();
             $table->unsignedInteger('harga');
             $table->unsignedInteger('stok')->default(0);
-            $table->unsignedInteger('min_stock')->default(5); // Batas stok menipis
-            $table->string('gambar')->nullable();             // Path gambar di storage
-            
-            $table->boolean('is_tersedia')->default(true); // <-- Diubah menjadi is_tersedia
-            
+            $table->unsignedInteger('min_stock')->default(5);
+            $table->string('gambar')->nullable();
+            $table->boolean('is_tersedia')->default(true);
+
             $table->timestamps();
-            $table->softDeletes(); // Untuk riwayat transaksi aman saat menu dihapus
+            $table->softDeletes();
         });
     }
 

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\MenuRequest;
+use App\Models\Category;
 use App\Models\Menu;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -15,6 +16,7 @@ class MenuController extends Controller
     public function index(Request $request): View
     {
         $menus = Menu::query()
+            ->with('category')
             ->search($request->query('q'))
             ->kategori($request->query('kategori'))
             ->latest()
@@ -30,7 +32,7 @@ class MenuController extends Controller
         return view('pages.admin.menus.index', [
             'menus'        => $menus,
             'stats'        => $stats,
-            'kategoriList' => Menu::KATEGORI,
+            'kategoriList' => Category::orderBy('name')->pluck('name', 'id'),
         ]);
     }
 
@@ -38,7 +40,7 @@ class MenuController extends Controller
     {
         return view('pages.admin.menus.create', [
             'menu'         => new Menu(['is_tersedia' => true, 'stok' => 0]),
-            'kategoriList' => Menu::KATEGORI,
+            'kategoriList' => Category::orderBy('name')->pluck('name', 'id'),
         ]);
     }
 
@@ -61,7 +63,7 @@ class MenuController extends Controller
     {
         return view('pages.admin.menus.edit', [
             'menu'         => $menu,
-            'kategoriList' => Menu::KATEGORI,
+            'kategoriList' => Category::orderBy('name')->pluck('name', 'id'),
         ]);
     }
 
@@ -75,7 +77,7 @@ class MenuController extends Controller
             }
             $data['gambar'] = $request->file('gambar')->store('menus', 'public');
         } else {
-            unset($data['gambar']); // jangan timpa gambar lama dengan null
+            unset($data['gambar']);
         }
 
         $menu->update($data);
@@ -86,14 +88,12 @@ class MenuController extends Controller
 
     public function destroy(Menu $menu): RedirectResponse
     {
-        // SoftDelete: data tetap ada untuk riwayat transaksi, jadi file gambar tidak dihapus
         $menu->delete();
 
         return redirect()->route('admin.menus.index')
             ->with('success', 'Menu berhasil dihapus.');
     }
 
-    /** Aktif/nonaktifkan menu dengan satu klik. */
     public function toggle(Menu $menu): RedirectResponse
     {
         $menu->update(['is_tersedia' => ! $menu->is_tersedia]);

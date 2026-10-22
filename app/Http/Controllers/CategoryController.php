@@ -46,7 +46,7 @@ class CategoryController extends Controller
 
         Category::create($validated);
 
-        return redirect()->route('admin.categories.index')
+        return redirect()->route('pages.admin.categories.index')
             ->with('success', 'Kategori berhasil ditambahkan.');
     }
 
@@ -73,7 +73,7 @@ class CategoryController extends Controller
 
         $category->update($validated);
 
-        return redirect()->route('admin.categories.index')
+        return redirect()->route('pages.admin.categories.index')
             ->with('success', 'Kategori berhasil diperbarui.');
     }
 
@@ -81,10 +81,14 @@ class CategoryController extends Controller
      * Remove the specified resource from storage.
      */
     public function destroy(Category $category)
-    {
-        $category->delete();
-
-        return redirect()->route('admin.categories.index')
-            ->with('success', 'Kategori berhasil dihapus.');
+{
+    if ($category->menus()->exists()) {
+        return back()->with('error', 'Kategori masih dipakai oleh menu.');
     }
+
+    $category->delete();
+
+    return redirect()->route('admin.categories.index')
+        ->with('success', 'Kategori berhasil dihapus.');
+}
 }

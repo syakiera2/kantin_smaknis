@@ -50,6 +50,7 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::get('/stock/daily', [StockController::class, 'daily'])->name('stock.daily');
     Route::post('/stock/daily', [StockController::class, 'dailyStore'])->name('stock.daily.store');
     Route::get('/stock/history', [StockController::class, 'history'])->name('stock.history');
+    Route::get('stock/availability', [StockController::class, 'availability'])->name('stock.availability');
     Route::put('/stock/{menu}', [StockController::class, 'update'])->name('stock.update');
 
     Route::resource('menus', AdminMenuController::class)->except('show');

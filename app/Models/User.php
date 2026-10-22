@@ -43,4 +43,14 @@ class User extends Authenticatable
     public function siswa() { return $this->hasOne(Siswa::class); }
     public function guru() { return $this->hasOne(Guru::class); }
     public function penjual() { return $this->hasOne(Penjual::class); }
+
+    public function menus(): HasMany
+{
+    return $this->hasMany(Menu::class);
+}
+
+public function stockMovements(): HasMany
+{
+    return $this->hasMany(StockMovement::class);
+}
 }

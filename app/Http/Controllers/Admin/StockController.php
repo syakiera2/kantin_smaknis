@@ -15,6 +15,7 @@ class StockController extends Controller
     public function index(Request $request)
     {
         $menus = Menu::query()
+            ->with('category')
             ->when($request->search, fn ($q, $s) => $q->where('nama', 'like', "%{$s}%"))
             ->when($request->status === 'low', fn ($q) => $q->lowStock())
             ->when($request->status === 'empty', fn ($q) => $q->empty())
@@ -27,10 +28,10 @@ class StockController extends Controller
             'low'   => Menu::lowStock()->count(),
             'empty' => Menu::empty()->count(),
         ];
-return view('pages.admin.stock.index', compact('menus', 'stats'));
+
+        return view('pages.admin.stock.index', compact('menus', 'stats'));
     }
 
-    /** Tambah / kurangi / set stok satu menu */
     public function update(Request $request, Menu $menu)
     {
         $data = $request->validate([
@@ -45,15 +46,14 @@ return view('pages.admin.stock.index', compact('menus', 'stats'));
             'set' => $this->stock->set($menu, $data['quantity'], $data['note'] ?? null),
         };
 
-        return back()->with('success', "Stok {$menu->name} berhasil diperbarui.");
+        return back()->with('success', "Stok {$menu->nama} berhasil diperbarui.");
     }
 
-    /** Form stok awal harian untuk semua menu */
     public function daily()
     {
-        $menus = Menu::orderBy('category')->orderBy('name')->get();
+        $menus = Menu::with('category')->orderBy('nama')->get();
 
-      return view('pages.admin.stock.daily', compact('menus'));
+        return view('pages.admin.stock.daily', compact('menus'));
     }
 
     public function dailyStore(Request $request)
@@ -65,16 +65,15 @@ return view('pages.admin.stock.index', compact('menus', 'stats'));
 
         foreach ($data['stocks'] as $menuId => $qty) {
             $menu = Menu::find($menuId);
-            if ($menu && $menu->stock !== (int) $qty) {
+            if ($menu && $menu->stok !== (int) $qty) {
                 $this->stock->set($menu, (int) $qty, 'Stok awal harian');
             }
         }
 
-        return redirect()->route('admin.stock.index')
+        return redirect()->route('pages.admin.stock.index')
             ->with('success', 'Stok harian berhasil disimpan.');
     }
 
-    /** Riwayat pergerakan stok */
     public function history(Request $request)
     {
         $movements = StockMovement::with(['menu', 'user'])
@@ -85,16 +84,15 @@ return view('pages.admin.stock.index', compact('menus', 'stats'));
             ->paginate(15)
             ->withQueryString();
 
-        $menus = Menu::orderBy('name')->get(['id', 'name']);
+        $menus = Menu::withTrashed()->orderBy('nama')->get(['id', 'nama']);
 
-      return view('pages.admin.stock.history', compact('movements', 'menus'));
+        return view('pages.admin.stock.history', compact('movements', 'menus'));
     }
 
-    /** JSON status ketersediaan real-time (untuk halaman pembeli) */
     public function availability()
     {
         return response()->json(
-            Menu::orderBy('name')->get(['id', 'name', 'price', 'stock', 'is_available'])
+            Menu::orderBy('nama')->get(['id', 'nama', 'harga', 'stok', 'is_tersedia'])
         );
     }
 }

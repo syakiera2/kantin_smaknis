@@ -9,34 +9,29 @@ use Illuminate\Validation\ValidationException;
 
 class StockService
 {
-    /** Tambah/kurangi stok. $qty positif = masuk, negatif = keluar. */
-    public function change(Menu|int $menu, int $qty, string $type, ?string $note = null, ?int $userId = null): StockMovement
+    /** Tambah/kurangi stok. $delta positif = masuk, negatif = keluar. */
+    public function change(Menu $menu, int $delta, string $type, ?string $note = null): StockMovement
     {
-        $menuId = $menu instanceof Menu ? $menu->id : $menu;
+        return DB::transaction(function () use ($menu, $delta, $type, $note) {
+            // lock baris supaya tidak bentrok kalau ada transaksi bersamaan
+            $menu = Menu::whereKey($menu->id)->lockForUpdate()->firstOrFail();
 
-        return DB::transaction(function () use ($menuId, $qty, $type, $note, $userId) {
-            // lock baris agar tidak terjadi stok minus saat transaksi bersamaan
-            $menu = Menu::lockForUpdate()->findOrFail($menuId);
-
-            $before = $menu->stock;
-            $after  = $before + $qty;
+            $before = $menu->stok;
+            $after  = $before + $delta;
 
             if ($after < 0) {
                 throw ValidationException::withMessages([
-                    'quantity' => "Stok {$menu->name} tidak cukup (sisa {$before}).",
+                    'quantity' => "Stok {$menu->nama} tidak cukup (tersisa {$before}).",
                 ]);
             }
 
-            $menu->update([
-                'stock'        => $after,
-                'is_available' => $after > 0,
-            ]);
+            $menu->update(['stok' => $after]);
 
             return StockMovement::create([
                 'menu_id'      => $menu->id,
-                'user_id'      => $userId ?? auth()->id(),
+                'user_id'      => auth()->id(),
                 'type'         => $type,
-                'quantity'     => $qty,
+                'quantity'     => $delta,
                 'stock_before' => $before,
                 'stock_after'  => $after,
                 'note'         => $note,
@@ -44,22 +39,25 @@ class StockService
         });
     }
 
-    /** Set stok ke angka tertentu (stok awal harian / stok opname). */
-    public function set(Menu|int $menu, int $newStock, ?string $note = null, ?int $userId = null): StockMovement
+    /** Set stok ke angka tertentu (stok awal harian). */
+    public function set(Menu $menu, int $quantity, ?string $note = null): StockMovement
     {
-        $menuId = $menu instanceof Menu ? $menu->id : $menu;
+        return DB::transaction(function () use ($menu, $quantity, $note) {
+            $menu = Menu::whereKey($menu->id)->lockForUpdate()->firstOrFail();
 
-        return DB::transaction(function () use ($menuId, $newStock, $note, $userId) {
-            $menu = Menu::lockForUpdate()->findOrFail($menuId);
-            $diff = $newStock - $menu->stock;
+            $before = $menu->stok;
 
-            return $this->change($menu, $diff, 'set', $note, $userId);
+            $menu->update(['stok' => $quantity]);
+
+            return StockMovement::create([
+                'menu_id'      => $menu->id,
+                'user_id'      => auth()->id(),
+                'type'         => 'set',
+                'quantity'     => $quantity - $before,
+                'stock_before' => $before,
+                'stock_after'  => $quantity,
+                'note'         => $note,
+            ]);
         });
-    }
-
-    /** Dipanggil modul transaksi saat pembelian berhasil. */
-    public function sell(Menu|int $menu, int $qty, ?string $invoice = null): StockMovement
-    {
-        return $this->change($menu, -$qty, 'sale', $invoice ? "Transaksi {$invoice}" : null);
     }
 }

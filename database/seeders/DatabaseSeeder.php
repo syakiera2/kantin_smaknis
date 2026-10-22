@@ -11,17 +11,14 @@ class DatabaseSeeder extends Seeder
     /**
      * Seed the application's database.
      */
-    public function run(): void
-    {
-        // Panggil seeder admin di sini
-        $this->call([
-            UserSeeder::class,
-            MenuSeeder::class,
-            TransactionSeeder::class,
-            SiswaSeeder::class,
-            GuruSeeder::class,
-            PenjualSeeder::class,
-            Categoryseeder::class,
-        ]);
-    }
+public function run(): void
+{
+    $this->call([
+        CategorySeeder::class,   // harus duluan
+        MenuSeeder::class,       // atau nama seeder menu Anda]
+        UserSeeder::class,
+        
+    ]);
+}
+
 }

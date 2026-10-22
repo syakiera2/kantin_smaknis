@@ -1,13 +1,26 @@
 @extends('layouts.admin')
 
 @section('content')
-<div class="mx-auto max-w-3xl">
-    <h1 class="mb-4 text-2xl font-bold text-[#7F5539]">Tambah Menu</h1>
+<div class="max-w-3xl mx-auto py-6">
+    <div class="mb-6 flex items-center justify-between">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900">Tambah Menu Baru</h1>
+            <p class="text-sm text-gray-600">Formulir penambahan menu kantin.</p>
+        </div>
+        <a href="{{ route('admin.menus.index') }}" class="text-sm text-gray-600 hover:text-gray-900 font-medium">← Kembali</a>
+    </div>
 
-    <form method="POST" action="{{ route('admin.menus.store') }}" enctype="multipart/form-data"
-          class="rounded-xl bg-white p-6 shadow-sm">
-        @csrf
-        @include('pages.admin.menus._form')
-    </form>
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+        <form action="{{ route('admin.menus.store') }}" method="POST" enctype="multipart/form-data">
+            @csrf
+
+            @include('pages.admin.menus._form')
+
+            <div class="flex justify-end space-x-3 mt-6">
+                <a href="{{ route('admin.menus.index') }}" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium rounded-lg transition">Batal</a>
+                <button type="submit" class="px-4 py-2 bg-amber-700 hover:bg-amber-800 text-white text-sm font-medium rounded-lg shadow transition">Simpan Menu</button>
+            </div>
+        </form>
+    </div>
 </div>
 @endsection

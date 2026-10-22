@@ -26,19 +26,17 @@
                 </tr>
             </thead>
             <tbody class="divide-y divide-gray-100">
-                @foreach ($menus as $menu)
-                    <tr>
-                        <td class="px-4 py-3 font-medium">{{ $menu->name }}</td>
-                        <td class="px-4 py-3 capitalize">{{ $menu->category }}</td>
-                        <td class="px-4 py-3 text-center">{{ $menu->stock }}</td>
-                        <td class="px-4 py-3">
-                            <input type="number" min="0" required
-                                   name="stocks[{{ $menu->id }}]"
-                                   value="{{ old('stocks.' . $menu->id, $menu->stock) }}"
-                                   class="w-full px-3 py-1.5 rounded-lg border border-gray-300">
-                        </td>
-                    </tr>
-                @endforeach
+@foreach ($menus as $menu)
+    <tr>
+        <td>{{ $menu->nama }}</td>
+        <td>{{ $menu->category?->name ?? '-' }}</td>
+        <td>
+            <input type="number" name="stocks[{{ $menu->id }}]" min="0"
+                value="{{ old('stocks.' . $menu->id, $menu->stok) }}"
+                class="w-24 px-3 py-1 border border-gray-300 rounded-lg text-sm">
+        </td>
+    </tr>
+@endforeach
             </tbody>
         </table>
     </div>

@@ -42,13 +42,12 @@
     <form method="GET" class="flex flex-wrap gap-3 rounded-xl bg-white p-4 shadow-sm">
         <input type="text" name="q" value="{{ request('q') }}" placeholder="Cari nama menu..."
                class="min-w-[200px] flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#7F5539] focus:outline-none focus:ring-1 focus:ring-[#7F5539]">
-        <select name="kategori"
-                class="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#7F5539] focus:outline-none focus:ring-1 focus:ring-[#7F5539]">
-            <option value="">Semua kategori</option>
-            @foreach ($kategoriList as $key => $label)
-                <option value="{{ $key }}" @selected(request('kategori') === $key)>{{ $label }}</option>
-            @endforeach
-        </select>
+      <select name="kategori" class="px-4 py-2 border border-gray-300 rounded-lg text-sm">
+    <option value="">Semua Kategori</option>
+    @foreach ($kategoriList as $id => $name)
+        <option value="{{ $id }}" @selected(request('kategori') == $id)>{{ $name }}</option>
+    @endforeach
+</select>
         <button class="rounded-lg bg-[#B08968] px-4 py-2 text-sm font-semibold text-white hover:bg-[#9c7857]">Filter</button>
         @if (request()->hasAny(['q', 'kategori']))
             <a href="{{ route('admin.menus.index') }}" class="rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-600 hover:bg-gray-50">Reset</a>

@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Storage;
 
@@ -13,21 +14,15 @@ class Menu extends Model
 {
     use HasFactory, SoftDeletes;
 
-    public const KATEGORI = [
-        'makanan' => 'Makanan',
-        'minuman' => 'Minuman',
-        'snack'   => 'Snack',
-    ];
-
     protected $fillable = [
-        'user_id', 
-        'nama', 
-        'kategori', 
+        'user_id',
+        'category_id',
+        'nama',
         'deskripsi',
-        'harga', 
-        'stok', 
-        'min_stock', 
-        'gambar', 
+        'harga',
+        'stok',
+        'min_stock',
+        'gambar',
         'is_tersedia',
     ];
 
@@ -44,18 +39,27 @@ class Menu extends Model
         return $this->belongsTo(User::class, 'user_id');
     }
 
+    public function category(): BelongsTo
+    {
+        return $this->belongsTo(Category::class);
+    }
+
+    public function stockMovements(): HasMany
+    {
+        return $this->hasMany(StockMovement::class);
+    }
+
     // ---------- Scopes ----------
     public function scopeSearch(Builder $query, ?string $term): Builder
     {
         return $query->when($term, fn ($q) => $q->where('nama', 'like', "%{$term}%"));
     }
 
-    public function scopeKategori(Builder $query, ?string $kategori): Builder
+    public function scopeKategori(Builder $query, $categoryId): Builder
     {
-        return $query->when($kategori, fn ($q) => $q->where('kategori', $kategori));
+        return $query->when($categoryId, fn ($q) => $q->where('category_id', $categoryId));
     }
 
-    /** Menu yang bisa dibeli: aktif dan stok masih ada. */
     public function scopeTersedia(Builder $query): Builder
     {
         return $query->where('is_tersedia', true)->where('stok', '>', 0);
@@ -82,7 +86,6 @@ class Menu extends Model
         return $this->gambar ? Storage::disk('public')->url($this->gambar) : null;
     }
 
-    /** Status real-time: Tersedia / Habis / Nonaktif */
     public function getStatusAttribute(): string
     {
         if (! $this->is_tersedia) {
